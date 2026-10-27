@@ -1,0 +1,17 @@
+{
+  "id": "uzume.tracker",
+  "name": "Randomizer Tracker",
+  "version": "0.1.0",
+  "api": 1,
+  "type": "script",
+  "requires": { "uzume.soullink-core": ">=0.4.0" },
+  "games": [
+    { "system": "3ds", "codes": ["000400000011C400", "000400000011C500"] }
+  ],
+  "permissions": ["store", "ui", "run.state"],
+  "entry": "main.lua",
+  "ui": {
+    "panel": { "title": "Tracker" },
+    "screen": { "title": "Tracker" }
+  }
+}

@@ -1,0 +1,8 @@
+# Modules bundled into plugin/main.lua (see tools/bundle.lua)
+census
+corelink
+data
+main
+tracker
+util
+views
