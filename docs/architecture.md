@@ -1,18 +1,18 @@
 # Architecture
 
-At a glance: the tracker polls the `pokemon.core` interface of `uzume.soullink-core`, records only what the game reported as seen (ids, counts, notes), stores it per run or per game in `fb.store`, and shows it in a panel tab and a screen. Names and types are read from the game at runtime and never stored.
+At a glance: the tracker polls the `pokemon.core` interface of `uzume.soullink-core`, records only what the game reported as seen (ids, counts, notes), stores it per run or per game in `uz.store`, and shows it in a panel tab and a screen. Names and types are read from the game at runtime and never stored.
 
 ## Layout
 
 - `src/`: modules, listed in `src/modules.txt`. `tools/bundle.lua` generates the committed `plugin/main.lua` (`--check` fails when stale); the Uzume sandbox has no `require`, the bundler defines one.
 - `plugin/`: `manifest.json` (requires `uzume.soullink-core` `>=0.4.0`, games: the two ORAS title ids), generated `main.lua`, `i18n/en.json` (source) and `de.json`.
-- `tests/`: `lua5.4 tests/run.lua` runs every `tests/test_*.lua` against `tests/support/fb_mock.lua` (fake `fb`: store with revisions and conflicts, run, ui validator, events, `fb.call`) and `tests/support/fake_core.lua` (fake `pokemon.core` with synthetic ids and names such as "Demomon 21"). Synthetic data only.
+- `tests/`: `lua5.4 tests/run.lua` runs every `tests/test_*.lua` against `tests/support/uz_mock.lua` (fake `uz`: store with revisions and conflicts, run, ui validator, events, `uz.call`) and `tests/support/fake_core.lua` (fake `pokemon.core` with synthetic ids and names such as "Demomon 21"). Synthetic data only.
 
 ## Modules
 
 | Module | Role |
 |---|---|
-| `corelink` | Protected `fb.call` wrapper for `pokemon.core`. Failures and "not_ready" answers are nil and never cached; names, types and zone names are cached in memory once known. One log warning at most. |
+| `corelink` | Protected `uz.call` wrapper for `pokemon.core`. Failures and "not_ready" answers are nil and never cached; names, types and zone names are cached in memory once known. One log warning at most. |
 | `data` | The stored data and its rules (record, caught, notes, limits, sanitize, merge). Pure. |
 | `census` | Owned-species census (team, then one box per step) and the catch detection built on it. |
 | `tracker` | Store, polling, events, view model, actions. |
@@ -32,7 +32,7 @@ Only what the interface reports during play; nothing is read ahead, so no spoile
 
 ## Data and scope
 
-Store key `tracker.run-<run id>` when `fb.run.current()` has an id (a run started with "Play run", or the run view), else `tracker.game-<game code>`; without either nothing is stored and the views show an empty state. A randomized run needs no special handling: it is keyed by the run, so every person's tracker data is separate, and the data never includes seeds or settings.
+Store key `tracker.run-<run id>` when `uz.run.current()` has an id (a run started with "Play run", or the run view), else `tracker.game-<game code>`; without either nothing is stored and the views show an empty state. A randomized run needs no special handling: it is keyed by the run, so every person's tracker data is separate, and the data never includes seeds or settings.
 
 Value: `{ v = 1, areas = { ["z<zone>"] = { zone, visited, notes, wild = { ["s<species>f<form>"] = { species, form, n, caught, shiny } }, trainers = { same keys = { species, form, n } } } } }`. Everything is keyed by ids. Limits: 1000 areas, 200 species per kind and area, notes up to 2000 bytes (the store allows 256 KiB per value).
 

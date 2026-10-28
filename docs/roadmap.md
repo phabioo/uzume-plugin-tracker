@@ -1,6 +1,6 @@
 # Roadmap
 
-Status: v0.1.0 (seen wild species per area with types and caught state, trainers' species, notes, types overview, panel and screen, data per run or per game). Builds on Uzume plugin API v1 and `uzume.soullink-core` 0.4; see the [Uzume roadmap](https://github.com/phabioo/uzume/blob/main/docs/roadmap.md) and [`docs/guides/plugin-api.md`](https://github.com/phabioo/uzume/blob/main/docs/guides/plugin-api.md). Design and open points: [architecture.md](architecture.md).
+Status: v0.1.1 (API namespace `uz`, falls back to `fb` on older apps); v0.1.0 (seen wild species per area with types and caught state, trainers' species, notes, types overview, panel and screen, data per run or per game). Builds on Uzume plugin API v1 and `uzume.soullink-core` 0.4; see the [Uzume roadmap](https://github.com/phabioo/uzume/blob/main/docs/roadmap.md) and [`docs/guides/plugin-api.md`](https://github.com/phabioo/uzume/blob/main/docs/guides/plugin-api.md). Design and open points: [architecture.md](architecture.md).
 
 ## Done in 0.1.0
 

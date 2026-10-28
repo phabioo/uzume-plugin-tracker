@@ -1,20 +1,20 @@
--- Boots the tracker sources against the fake fb and the fake pokemon.core.
-local fb_mock = require("fb_mock")
+-- Boots the tracker sources against the fake uz and the fake pokemon.core.
+local uz_mock = require("uz_mock")
 local fake_core = require("fake_core")
 
 local H = {}
 H.GAME = { system = "3ds", code = "000400000011C400", title = "Demo Game" }
 H.KEY = "tracker.game-000400000011c400"
 
---- opts as fb_mock.new, plus opts.core = false for a missing interface, opts.setup(core) before the start.
+--- opts as uz_mock.new, plus opts.core = false for a missing interface, opts.setup(core) before the start.
 function H.boot(opts)
   opts = opts or {}
   opts.game = opts.game or H.GAME
   local core = fake_core.new()
   if opts.setup then opts.setup(core) end
-  local mock = fb_mock.new(opts)
+  local mock = uz_mock.new(opts)
   if opts.core ~= false then mock.set_provider("pokemon.core", core.api) end
-  local tracker = require("tracker").new(mock.fb)
+  local tracker = require("tracker").new(mock.uz)
   tracker:start()
   return mock, tracker, core
 end
