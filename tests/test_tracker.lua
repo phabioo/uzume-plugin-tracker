@@ -390,7 +390,7 @@ t.case("store conflict: both sides are merged, nothing is lost", function()
   t.ok(saved.areas.z5.wild.s21f0 and saved.areas.z5.wild.s23f0)
   t.ok(saved.areas.z6.wild.s22f0)
   t.eq(saved.areas.z6.notes, "other pc")
-  t.eq(#mock.fb.store.conflicts(H.KEY), 0, "resolved by the second write")
+  t.eq(#mock.uz.store.conflicts(H.KEY), 0, "resolved by the second write")
 end)
 
 t.case("store.changed merges the other PC's data in", function()

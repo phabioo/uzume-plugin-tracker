@@ -17,26 +17,26 @@ local TYPING_QUIET_MS = 3000 -- no redraw right after the person typed a note
 local MAX_ROWS = 500
 
 --- Store key: "tracker.run-<run id>" in a run, else "tracker.game-<game code>"; nil without either.
-function Tracker.store_key(fb)
+function Tracker.store_key(uz)
   local function clean(s, max)
     return (tostring(s):lower():gsub("[^a-z0-9_.-]", "_")):sub(1, max)
   end
-  if fb.run and fb.run.current then
-    local ok, cur = pcall(fb.run.current)
+  if uz.run and uz.run.current then
+    local ok, cur = pcall(uz.run.current)
     if ok and type(cur) == "table" and cur.id ~= nil and tostring(cur.id) ~= "" then
       return "tracker.run-" .. clean(cur.id, 36)
     end
   end
-  local code = fb.game and fb.game.code
+  local code = uz.game and uz.game.code
   if type(code) == "string" and code ~= "" then return "tracker.game-" .. clean(code, 40) end
   return nil
 end
 
-function Tracker.new(fb)
+function Tracker.new(uz)
   local self = setmetatable({}, Tracker)
-  self.fb = fb
-  self.T = function(key, vars) return fb.i18n.t(key, vars) end
-  self.core = corelink.new(fb)
+  self.uz = uz
+  self.T = function(key, vars) return uz.i18n.t(key, vars) end
+  self.core = corelink.new(uz)
   self.catch = census.Catch.new(self.core)
   self.ticks = 0
   self.rev = 0
@@ -51,10 +51,10 @@ end
 
 function Tracker:load()
   self.data, self.rev = data.new(), 0
-  if not self.key or not self.fb.store then return end
-  local ok, v, rev = pcall(self.fb.store.get, self.key)
+  if not self.key or not self.uz.store then return end
+  local ok, v, rev = pcall(self.uz.store.get, self.key)
   if not ok then
-    self.fb.log.warn("store.get failed: " .. tostring(v))
+    self.uz.log.warn("store.get failed: " .. tostring(v))
     return
   end
   self.rev = rev or 0
@@ -62,25 +62,25 @@ function Tracker:load()
 end
 
 function Tracker:notify(title, body)
-  pcall(self.fb.ui.notify, { tone = "warning", title = title, text = body })
+  pcall(self.uz.ui.notify, { tone = "warning", title = title, text = body })
 end
 
 --- Writes the data. On a stale write the stored version is merged with ours (nothing is lost) and written again.
 function Tracker:save()
   self.dirty = false
-  self.last_save = self.fb.clock()
-  if not self.key or not self.fb.store then return end
+  self.last_save = self.uz.clock()
+  if not self.key or not self.uz.store then return end
   for attempt = 1, 2 do
-    local ok, res, why = pcall(self.fb.store.put, self.key, self.data, self.rev)
+    local ok, res, why = pcall(self.uz.store.put, self.key, self.data, self.rev)
     if not ok then
-      self.fb.log.warn("store.put failed: " .. tostring(res))
+      self.uz.log.warn("store.put failed: " .. tostring(res))
       self.dirty = true
       return
     elseif res == true then
       self.rev = why
       return
     elseif why == "conflict" and attempt == 1 then
-      local gok, remote, rev = pcall(self.fb.store.get, self.key)
+      local gok, remote, rev = pcall(self.uz.store.get, self.key)
       if not gok then
         self.dirty = true
         return
@@ -89,7 +89,7 @@ function Tracker:save()
       self.rev = rev or 0
       self.view_dirty = true
     else
-      self.fb.log.warn("store.put refused: " .. tostring(why))
+      self.uz.log.warn("store.put refused: " .. tostring(why))
       self.dirty = true
       self:notify(self.T("store.failed.title"), self.T("store.failed.text"))
       return
@@ -99,8 +99,8 @@ end
 
 --- The stored version changed elsewhere: merge it into ours.
 function Tracker:on_store_changed()
-  if not self.key or not self.fb.store then return end
-  local ok, remote, rev = pcall(self.fb.store.get, self.key)
+  if not self.key or not self.uz.store then return end
+  local ok, remote, rev = pcall(self.uz.store.get, self.key)
   if not ok or remote == nil then return end
   self.data = data.merge(remote, self.data)
   self.rev = rev or self.rev
@@ -110,18 +110,18 @@ end
 -- Lifecycle -----------------------------------------------------------------------------------------------
 
 function Tracker:start()
-  local fb = self.fb
-  self.key = Tracker.store_key(fb)
+  local uz = self.uz
+  self.key = Tracker.store_key(uz)
   self:load()
-  fb.on_tick(function() self:tick() end)
-  fb.ui.on_action(function(a, v) self:action(a, v) end)
+  uz.on_tick(function() self:tick() end)
+  uz.ui.on_action(function(a, v) self:action(a, v) end)
   for _, name in ipairs({ "encounter", "location.changed", "battle.started", "battle.ended" }) do
-    fb.events.on(CORE_ID, name, function() self:poll() end)
+    uz.events.on(CORE_ID, name, function() self:poll() end)
   end
-  fb.events.on("app", "store.changed", function(k)
+  uz.events.on("app", "store.changed", function(k)
     if k == self.key then self:on_store_changed() end
   end)
-  fb.events.on("app", "store.conflict", function(k)
+  uz.events.on("app", "store.conflict", function(k)
     if k == self.key then self.dirty = true end
   end)
   self.view_dirty = true
@@ -164,7 +164,7 @@ end
 function Tracker:poll_battle()
   local b = self.core:battle()
   local active = b and b.active == true
-  local now = self.fb.clock()
+  local now = self.uz.clock()
   if active and not self.battle then
     self.battle = { kind = b.kind, seen = {} }
     if b.kind == "wild" and self.cur_zone then
@@ -202,7 +202,7 @@ end
 
 function Tracker:tick()
   self.ticks = self.ticks + 1
-  local now = self.fb.clock()
+  local now = self.uz.clock()
   if self.ticks % POLL_TICKS == 0 then self:poll() end
   if self.catch:active() then
     for _, f in ipairs(self.catch:tick(now)) do
@@ -344,12 +344,12 @@ function Tracker:set_if_changed(slot, tree)
   local key = util.ser(tree)
   if self.shown[slot] == key then return end
   self.shown[slot] = key
-  self.fb.ui.set(slot, tree)
+  self.uz.ui.set(slot, tree)
 end
 
 function Tracker:render_all()
   self.view_dirty = false
-  self.last_render = self.fb.clock()
+  self.last_render = self.uz.clock()
   self:set_if_changed("panel", views.panel(self:vm(false), self.T))
   self:set_if_changed("screen", views.screen(self:vm(true), self.T))
 end
@@ -359,7 +359,7 @@ end
 local H = {}
 
 function H.open(self)
-  if self.fb.ui.open then self.fb.ui.open("screen") end
+  if self.uz.ui.open then self.uz.ui.open("screen") end
 end
 
 function H.pick(self, v)
@@ -391,7 +391,7 @@ function Tracker:action(action, value)
   if zone then
     if data.set_note(self.data, tonumber(zone), value) then
       self:save()
-      self.quiet_until = self.fb.clock() + TYPING_QUIET_MS
+      self.quiet_until = self.uz.clock() + TYPING_QUIET_MS
       self.view_dirty = true
     end
   end

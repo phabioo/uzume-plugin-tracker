@@ -1,4 +1,4 @@
--- Reads the Pokemon core interface (`pokemon.core` of uzume.soullink-core) through fb.call.
+-- Reads the Pokemon core interface (`pokemon.core` of uzume.soullink-core) through uz.call.
 -- Every call is protected; failures and "not ready" answers come back as nil and are never cached,
 -- so names and types appear as soon as the game text is loaded. All ids are the game's; names are read
 -- at runtime and kept in memory only.
@@ -7,17 +7,17 @@ M.__index = M
 
 local INTERFACE = "pokemon.core"
 
-function M.new(fb)
-  return setmetatable({ fb = fb, names = {}, types = {}, zone_names = {}, universe = nil, warned = false }, M)
+function M.new(uz)
+  return setmetatable({ uz = uz, names = {}, types = {}, zone_names = {}, universe = nil, warned = false }, M)
 end
 
 --- Calls a function of the interface. Returns value, or nil, reason.
 function M:call(fn, ...)
-  local ok, v, why = pcall(self.fb.call, INTERFACE, fn, ...)
+  local ok, v, why = pcall(self.uz.call, INTERFACE, fn, ...)
   if not ok then
     if not self.warned then
       self.warned = true
-      self.fb.log.warn("pokemon.core call failed: " .. tostring(v))
+      self.uz.log.warn("pokemon.core call failed: " .. tostring(v))
     end
     return nil, "unavailable"
   end

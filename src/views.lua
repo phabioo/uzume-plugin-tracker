@@ -1,4 +1,4 @@
--- Declarative UI trees (panel, screen) from a view model. Pure functions, no fb access.
+-- Declarative UI trees (panel, screen) from a view model. Pure functions, no uz access.
 local M = {}
 
 local function text(props)
