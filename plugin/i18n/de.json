@@ -37,5 +37,12 @@
   "col.yes": "ja",
   "rows.truncated": "Die ersten {n} Gebiete werden angezeigt.",
   "store.failed.title": "Tracker-Daten nicht gespeichert",
-  "store.failed.text": "Die Tracker-Daten konnten nicht gespeichert werden. Sie bleiben im Speicher, bis die App schließt."
+  "store.failed.text": "Die Tracker-Daten konnten nicht gespeichert werden. Sie bleiben im Speicher, bis die App schließt.",
+  "btn.export": "Als Text exportieren",
+  "btn.export_back": "Zurück zu den Gebieten",
+  "export.title": "Als Text exportieren",
+  "export.hint": "Text markieren und kopieren. Änderungen hier ändern nichts.",
+  "export.header": "Randomizer Tracker: was ich gesehen habe",
+  "export.empty": "Noch nichts aufgezeichnet.",
+  "export.truncated": "(gekürzt: zu lang für diese Ansicht)"
 }

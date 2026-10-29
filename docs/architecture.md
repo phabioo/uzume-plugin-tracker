@@ -43,6 +43,7 @@ Changes are written at most every 2 seconds, notes at once. A stale write (anoth
 - **Panel** (about 300 px): the current area first (visited badge, wild species with types and caught/seen count, trainers' species, notes field), then "Types seen" as chips and a button to the screen.
 - **Screen:** filter chips (all, not visited, visited, has notes), a table of areas (area, seen, caught, trainers, notes) with the selected area's details below, and the types overview. The table lists the core's encounter areas (`areas()`, game order) plus any other zone with data, at most 500 rows; areas with the same name get their zone id appended.
 - Names and types come from `name("species"|"type", id)` and `species_info()`; zone names from `areas()` / `zone_info()`. While the game text is not loaded the views show "Species 21", "Type 3", "Zone 5" and rebuild every 5 seconds until the names arrive.
+- **Export:** the button "Export as text" on the screen shows a dialog-width view with a monospace textarea holding all recorded areas (visited state, species with counts and caught state, trainers, notes), up to 60000 bytes. The plugin API has no file save or clipboard call, so the person selects and copies the text; the textarea has no action, so edits are never sent back. "Back to areas" returns.
 - In the run view (no game) the screen shows the run's stored data from the store; names are not available there and appear as zone and species numbers.
 
 ## Open points
