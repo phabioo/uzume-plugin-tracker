@@ -2,7 +2,7 @@
 
 A spoiler-free tracker for randomized Pokémon runs: per area the wild species you met (with types, caught or not), the species trainers sent out, your own notes, and an overview of the types you have seen.
 
-Status: **v0.1.1** (Omega Ruby / Alpha Sapphire through `uzume-plugin-soullink-core`: panel with the current area first, all-areas screen with filters, notes, per run or per game data).
+Status: **v0.2.0** (Omega Ruby / Alpha Sapphire through `uzume-plugin-soullink-core`: panel with the current area first, all-areas screen with filters, notes, per run or per game data).
 
 For Uzume with plugin API v1 (store since Uzume 0.20). Part of [Uzume](https://github.com/phabioo/uzume); plugin API: [`docs/guides/plugin-api.md`](https://github.com/phabioo/uzume/blob/main/docs/guides/plugin-api.md) there. Needs `uzume.soullink-core` 0.4.0 or newer. Layout and design: [docs/architecture.md](docs/architecture.md). Plan: [docs/roadmap.md](docs/roadmap.md).
 

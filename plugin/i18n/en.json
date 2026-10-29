@@ -37,5 +37,12 @@
   "col.yes": "yes",
   "rows.truncated": "Showing the first {n} areas.",
   "store.failed.title": "Tracker data not saved",
-  "store.failed.text": "The tracker data could not be stored. It stays in memory until the app closes."
+  "store.failed.text": "The tracker data could not be stored. It stays in memory until the app closes.",
+  "btn.export": "Export as text",
+  "btn.export_back": "Back to areas",
+  "export.title": "Export as text",
+  "export.hint": "Select the text and copy it. Editing here changes nothing.",
+  "export.header": "Randomizer Tracker: what I have seen",
+  "export.empty": "Nothing recorded yet.",
+  "export.truncated": "(cut: too long for this view)"
 }

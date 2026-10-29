@@ -90,6 +90,14 @@ function M.screen(vm, T)
   if not vm.ready then
     return { type = "empty", title = T("empty.no_game.title"), text = T("empty.no_game.text") }
   end
+  if vm.export then
+    return { type = "column", width = "dialog", gap = 12, children = {
+      { type = "button", id = "x_back", label = T("btn.export_back"), action = "export_close", variant = "secondary" },
+      text({ text = T("export.title"), style = "eyebrow" }),
+      text({ text = T("export.hint"), style = "meta" }),
+      { type = "textarea", id = "x_text", value = vm.export, lines = 20, mono = true },
+    } }
+  end
   local chips = {}
   for _, f in ipairs(FILTERS) do
     chips[#chips + 1] = { type = "chip", id = "f_" .. f, text = T("filter." .. f), action = "filter:" .. f, selected = vm.filter == f }
@@ -113,6 +121,7 @@ function M.screen(vm, T)
   end
   if vm.selected then kids[#kids + 1] = M.area_section(vm.selected, T, "s_") end
   kids[#kids + 1] = types_section(vm, T, "s_types")
+  kids[#kids + 1] = { type = "button", id = "s_export", label = T("btn.export"), action = "export", variant = "secondary" }
   return { type = "column", gap = 16, children = kids }
 end
 

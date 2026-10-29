@@ -51,7 +51,7 @@ end
 
 local gap = num
 local SPEC = {
-  column = { gap = gap, align = enum("start", "center", "end", "stretch") },
+  column = { gap = gap, align = enum("start", "center", "end", "stretch"), width = enum("dialog") },
   row = { gap = gap, align = enum("start", "center", "end", "stretch") },
   grid = { gap = gap, columns = int_in(1, 6) },
   tabs = { tabs = list_of(text200, 1, 12), selected = int_in(1, 12), action = action, _req = { "tabs" } },

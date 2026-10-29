@@ -785,6 +785,60 @@ function Tracker:rows_view()
   return rows, truncated
 end
 
+--- Plain-text export of everything recorded in the scope: per area visited state, seen species and notes.
+--- Names come from the core at call time and are not stored. Cut to the textarea limit (64 KiB).
+local MAX_EXPORT = 60000
+
+function Tracker:export_text()
+  local T = self.T
+  local zones = {}
+  for _, a in pairs(self.data.areas) do
+    if data.has_data(a) then zones[#zones + 1] = a.zone end
+  end
+  table.sort(zones)
+  local out = { T("export.header"), "" }
+  local function lines(entries, wild)
+    for _, e in ipairs(entries) do
+      local title = e.name
+      if e.form and e.form > 0 then title = T("species.form", { name = e.name, form = e.form }) end
+      local meta = (wild and e.caught) and T("row.caught") or T("row.seen", { n = e.n })
+      out[#out + 1] = "  - " .. title .. " (" .. meta .. ")"
+    end
+  end
+  for _, zone in ipairs(zones) do
+    local a = self:area_view(zone)
+    out[#out + 1] = "== " .. a.name .. " =="
+    out[#out + 1] = a.visited and T("area.visited") or T("area.not_visited")
+    if #a.wild > 0 then
+      out[#out + 1] = T("area.wild") .. ":"
+      lines(a.wild, true)
+    end
+    if #a.trainers > 0 then
+      out[#out + 1] = T("area.trainers") .. ":"
+      lines(a.trainers, false)
+    end
+    if a.notes ~= "" then
+      out[#out + 1] = T("area.notes") .. ":"
+      out[#out + 1] = a.notes
+    end
+    out[#out + 1] = ""
+  end
+  if #zones == 0 then out[#out + 1] = T("export.empty") end
+  local text = table.concat(out, "\n")
+  if #text > MAX_EXPORT then
+    local notice = "\n" .. T("export.truncated")
+    local cut = MAX_EXPORT - #notice
+    -- step back to a UTF-8 character boundary (a continuation byte is 10xxxxxx)
+    while cut > 0 do
+      local b = text:byte(cut + 1)
+      if b == nil or b < 0x80 or b >= 0xC0 then break end
+      cut = cut - 1
+    end
+    text = text:sub(1, cut) .. notice
+  end
+  return text
+end
+
 function Tracker:vm(with_rows)
   self.unresolved = false
   local vm = { ready = self.key ~= nil, filter = self.filter, rows = {}, types = {}, types_pending = 0 }
@@ -792,6 +846,7 @@ function Tracker:vm(with_rows)
   if self.cur_zone then vm.cur = self:area_view(self.cur_zone) end
   vm.types, vm.types_pending = self:types_view()
   if with_rows then
+    if self.exporting then vm.export = self:export_text() end
     vm.rows, vm.truncated = self:rows_view()
     local sel = self.selected_zone or self.cur_zone
     if sel then vm.selected = self:area_view(sel) end
@@ -821,6 +876,15 @@ local H = {}
 
 function H.open(self)
   if self.uz.ui.open then self.uz.ui.open("screen") end
+end
+
+function H.export(self)
+  self.exporting = true
+  if self.uz.ui.open then self.uz.ui.open("screen") end
+end
+
+function H.export_close(self)
+  self.exporting = false
 end
 
 function H.pick(self, v)
@@ -1006,6 +1070,14 @@ function M.screen(vm, T)
   if not vm.ready then
     return { type = "empty", title = T("empty.no_game.title"), text = T("empty.no_game.text") }
   end
+  if vm.export then
+    return { type = "column", width = "dialog", gap = 12, children = {
+      { type = "button", id = "x_back", label = T("btn.export_back"), action = "export_close", variant = "secondary" },
+      text({ text = T("export.title"), style = "eyebrow" }),
+      text({ text = T("export.hint"), style = "meta" }),
+      { type = "textarea", id = "x_text", value = vm.export, lines = 20, mono = true },
+    } }
+  end
   local chips = {}
   for _, f in ipairs(FILTERS) do
     chips[#chips + 1] = { type = "chip", id = "f_" .. f, text = T("filter." .. f), action = "filter:" .. f, selected = vm.filter == f }
@@ -1029,6 +1101,7 @@ function M.screen(vm, T)
   end
   if vm.selected then kids[#kids + 1] = M.area_section(vm.selected, T, "s_") end
   kids[#kids + 1] = types_section(vm, T, "s_types")
+  kids[#kids + 1] = { type = "button", id = "s_export", label = T("btn.export"), action = "export", variant = "secondary" }
   return { type = "column", gap = 16, children = kids }
 end
 
