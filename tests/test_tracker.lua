@@ -454,3 +454,14 @@ t.case("export as text in german", function()
   mock.action("export")
   t.ok(H.find(mock, "screen", "x_text").value:find("was ich gesehen habe", 1, true))
 end)
+
+t.case("export as text: multibyte notes over the limit stay within 60000 bytes and valid UTF-8", function()
+  for _, lang in ipairs({ "en", "de" }) do
+    local mock, tr = H.boot({ language = lang })
+    for z = 1, 40 do data.set_note(tr.data, z, ("ä€"):rep(500)) end
+    local text = tr:export_text()
+    t.ok(#text <= 60000, "too long: " .. #text)
+    t.ok(utf8.len(text) ~= nil, "invalid UTF-8")
+    t.ok(text:find(lang == "de" and "gekürzt" or "cut: too long", 1, true))
+  end
+end)

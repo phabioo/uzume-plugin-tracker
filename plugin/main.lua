@@ -826,8 +826,15 @@ function Tracker:export_text()
   if #zones == 0 then out[#out + 1] = T("export.empty") end
   local text = table.concat(out, "\n")
   if #text > MAX_EXPORT then
-    local cut = utf8.offset(text, MAX_EXPORT + 1) or (MAX_EXPORT + 1)
-    text = text:sub(1, cut - 1) .. "\n" .. T("export.truncated")
+    local notice = "\n" .. T("export.truncated")
+    local cut = MAX_EXPORT - #notice
+    -- step back to a UTF-8 character boundary (a continuation byte is 10xxxxxx)
+    while cut > 0 do
+      local b = text:byte(cut + 1)
+      if b == nil or b < 0x80 or b >= 0xC0 then break end
+      cut = cut - 1
+    end
+    text = text:sub(1, cut) .. notice
   end
   return text
 end
